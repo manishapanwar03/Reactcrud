@@ -14,6 +14,7 @@ function App() {
           <Route exact path="/" element={<Navbar/>}/>
           <Route path="/company/:id"  element={<Employee/>} />
           <Route path="/page/:pageNumber" element={<Navbar />} />
+          <Route path="/page/:pageNumber"  element={<Navbar/>} />
         </Routes>
         
       </div>

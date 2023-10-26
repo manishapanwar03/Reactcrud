@@ -13,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { createSvgIcon } from '@mui/material/utils';
+import SearchIcon from '@mui/icons-material/Search';
 
 
 
@@ -26,9 +27,18 @@ const Navbar = () => {
     const expense_typeOptions = ["Indore", "Ujjain", "Bhopal", "Pune", "udiapur"];
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(5);
 
+    // const [itemsPerPage, setItemsPerPage] = useState(5);
 
+    const [filteredData, setFilteredData] = useState([]);
+    const [showSrchRst, setShowSrchRst] = useState(false);
+    const [empty, setEmpty] = useState("")
+
+    const [pagination, setPagination] = useState("")
+    const number_of_rows = [3, 5, 7];
+    const [selectedRows, setSelectedRows] = useState(4);
+    const [pages, setPages] = useState("")
+    const [show, setShow] = useState(1);
 
     const postCompany = () => {
         let dataObj = {
@@ -47,11 +57,14 @@ const Navbar = () => {
                     setCompanyHeadquaters('');
                     setSelectedCompanyId(null);
                     fetchCompanyData();
-                    Swal.fire(
-                        'Updated',
-                        'Your file has been Updated.',
-                        'success'
-                    )
+                    Swal.fire({
+                        title: "Updated",
+                        text: "Your file has been Updated.",
+                        icon: "success",
+                        timer: 1000,
+                        showConfirmButton: false,
+
+                    })
                 })
                 .catch((error) => {
                     // console.error("Error updating company:", error);
@@ -66,20 +79,22 @@ const Navbar = () => {
                     setCompanyFoundedDate('');
                     setCompanyHeadquaters('');
                     fetchCompanyData();
-                    Swal.fire(
-                        'Added',
-                        'Your file has been Added.',
-                        'success'
+                    Swal.fire({
+                        title: "Added",
+                        text: "Your file has been Added.",
+                        icon: "success",
+                        timer: 1000,
+                        showConfirmButton: false,
+                    }
                     )
 
                 })
                 .catch((error) => {
-                    // console.error("Error adding company:", error);
+                    console.error("Error adding company:", error);
                 });
         }
     }
     const updateCompany = (companyId) => {
-        // console.log("Update button clicked");
         axios.get(`http://127.0.0.1:8000/api/companies/${companyId}/`)
             .then((response) => {
                 const companyData = response.data;
@@ -90,19 +105,11 @@ const Navbar = () => {
                 setSelectedCompanyId(companyId);
             })
             .catch((error) => {
-                // console.error("Error fetching company data for update:", error);
+                console.error("Error fetching company data for update:", error);
             });
     }
     const DeleteCompany = (companyId) => {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
-            },
-            buttonsStyling: false
-        })
-
-        swalWithBootstrapButtons.fire({
+        Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
             icon: 'warning',
@@ -114,27 +121,28 @@ const Navbar = () => {
             if (result.isConfirmed) {
                 axios.delete(`http://127.0.0.1:8000/api/companies/${companyId}`)
                     .then((response) => {
-                        // console.log("Company deleted:", companyId);
                         fetchCompanyData();
-                        swalWithBootstrapButtons.fire(
-                            'successfull',
-                            'Your file has been deleted :)',
-                            'success'
-                        )
+                        Swal.fire({
+                            title: "done",
+                            text: "deleted!",
+                            icon: "success",
+                            timer: 1000,
+                            showConfirmButton: false,
+                        })
                     })
                     .catch((error) => {
-                        // console.error("Error:", error);
+                        console.error("Error:", error);
                     });
 
 
-            } else if (
-                /* Read more about handling dismissals below */
-                result.dismiss === Swal.DismissReason.cancel
-            ) {
-                swalWithBootstrapButtons.fire(
-                    'Cancelled',
-                    'Your imaginary file is safe :)',
-                    'error'
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire({
+                    title: 'Cancelled',
+                    text: "Your imaginary file is safe :)",
+                    icon: 'error',
+                    timer: 1000,
+                    showConfirmButton: false,
+                }
                 )
             }
         })
@@ -162,27 +170,35 @@ const Navbar = () => {
     const performSearch = (e) => {
         const value = e.target.value;
         setSearchQuery(value);
-        if (value === "" ) {
+        if (value === "") {
             fetchCompanyData();
-        }
-        else {
+            setShowSrchRst(false);
+            setEmpty(false)
+        } else {
             const filteredData = apiData.filter((company) =>
                 company.name.toLowerCase().includes(value.toLowerCase()) ||
                 company.description.toLowerCase().includes(value.toLowerCase()) ||
                 company.headquarters_location.toLowerCase().includes(value.toLowerCase()) ||
                 company.founded_date.toLowerCase().includes(value.toLowerCase())
             );
-            setApiData(filteredData);
+            setFilteredData(filteredData);
             setCurrentPage(1);
-            if (setApiData !== filteredData) {
-                <h1>Data is recoreded</h1>
-
-            }
+            setShowSrchRst(filteredData.length > 0);
+            setEmpty(filteredData !== apiData)
+        }
+    }
+    const handleShow = () => {
+        if (show === 1) {
+            document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4 active");
+            setShow(0);
+        } else {
+            document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4");
+            setShow(1);
         }
     }
 
 
-    const pageNumbers = Math.ceil(apiData.length / itemsPerPage);
+    const pageNumbers = Math.ceil(apiData.length / selectedRows);
 
     const renderPageNumbers = [];
     for (let number = 1; number <= pageNumbers; number++) {
@@ -196,8 +212,8 @@ const Navbar = () => {
         );
     }
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const indexOfLastItem = currentPage * selectedRows;
+    const indexOfFirstItem = indexOfLastItem - selectedRows;
     const displayedItems = apiData.slice(indexOfFirstItem, indexOfLastItem);
 
 
@@ -220,44 +236,24 @@ const Navbar = () => {
     const handlePageChange = (event, page) => {
         setCurrentPage(page);
     };
-    const HomeIcon = createSvgIcon(
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />,
-        'Home',
-    );
 
-    const PlusIcon = createSvgIcon(
-        // credit: plus icon from https://heroicons.com/
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-        >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>,
-        'Plus',
-    );
+
     return (
         <div>
             <nav className="navbar justify-content-between navbar-fixed" id='i1'>
                 <a className="navbar-brand">
-                    <button type="button" data-toggle="modal" data-target="#exampleModal" className='button-30'>
+                    {/* <button type="button" data-toggle="modal" data-target="#exampleModal" className='button-30'>
                         AddCompany
-                    </button>
-
-
-                    <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
+                    </button>   */}
+                    {/* <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div classNameName="modal-dialog" role="document">
+                            <div classNameName="modal-content">
 
                                 <div className="modal-body">
                                     <form onSubmit={handleSubmit} className='containerr'>
                                         <center>
                                             <div>
-                                                <button onClick={postCompany} className="btn btn-primary">
-                                                    {selectedCompanyId ? "Update" : "Add Company"}
-                                                </button>
+                                                
                                             </div>
                                         </center>
                                         <div className="mb-3">
@@ -288,86 +284,240 @@ const Navbar = () => {
                                             <button onClick={postCompany} className="btn btn-primary">
                                                 {selectedCompanyId ? "Update" : "AddCompany"}
                                             </button>
-                                            {/* {selectedCompanyId ?    <button type="button" className="btn btn-primary" data-dismiss="modal">Update</button> :    <button type="button" className="btn btn-primary" data-dismiss="modal">AddCompany</button>
-} */}
 
                                         </div>
-                                        {/* <button type="button" className="btn btn-primary" data-dismiss="modal">Update</button>
-                                        <button type="button" className="btn btn-primary" data-dismiss="modal">AddCompany</button> */}
 
                                     </form>
                                 </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" className="btn btn-primary">Save changes</button>
+                                </div>
 
+                            </div>
+                        </div>
+                    </div> */}
+
+                    <button type="button" className="button-30" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        AddCompany
+                    </button>
+
+
+                    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+
+                                <div className="modal-body">
+                                    <form onSubmit={handleSubmit} className='containerr'>
+                                        <center>
+                                            <div>
+
+                                            </div>
+                                        </center>
+                                        <div className="mb-3">
+
+                                            <label htmlFor="exampleInputEmail1" className="form-label " >Company Name</label>
+                                            <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Enter Name" />
+
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputPassword1" className="form-label">Description</label>
+                                            <input type="text" className="form-control" id="exampleInputPassword1" value={companyDescription} onChange={(e) => setCompanyDescription(e.target.value)} placeholder="Enter Description" />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputEmail1" className="form-label">FoundedDate</label>
+                                            <input type="date" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={companyFoundedDate} onChange={(e) => setCompanyFoundedDate(e.target.value)} placeholder="Enter FoundedDate" />
+
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputPassword1" className="form-label">companyHeadquaters</label>
+                                            <select value={companyHeadquaters} onChange={(e) => setCompanyHeadquaters(e.target.value)} className="form-control" id="exampleInputPassword1">
+                                                <option value="" disabled>Select Expense Type</option>
+                                                {expense_typeOptions.map((option) => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                    </form>
+
+
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" onClick={postCompany} className="btn btn-secondary" data-bs-dismiss="modal" >    {selectedCompanyId ? "Update" : "AddCompany"}</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </a>
                 <form className="form-inline">
-                    <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value={searchQuery} onChange={performSearch} />
+                    {/* <div className='main_day4'>
+                        {show ? (
+                            <>
+                                <SearchIcon onClick={handleShow} id='btn' style={{ color: "white", margin: "20px" }} />
+                            </>
 
-                    {/* <button className="btn  my-2 my-sm-0" type="button" onClick={() => performSearch(searchQuery)}>
-                        Search
-                    </button> */}
+                        ) : (
+                            <>
+                                <div style={{ display: "flex" }}>
+                                    <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value={searchQuery} onChange={performSearch} id="inputt" />
+                                    <button id='btn' onClick={handleShow}><i className='fas fa-search'></i></button>
+                                    <SearchIcon onClick={handleShow} id='btn' style={{ color: "white" }} />
+                                </div>
+
+                            </>
+
+                        )}
+
+                    </div> */}
+                    <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value={searchQuery} onChange={performSearch} id="inputt" />
+
                 </form>
             </nav>
-            {/* <div className="word">
-                <span>C</span>
-                <span>O</span>
-                <span>M</span>
-                <span>P</span>
-                <span>A</span>
-                <span>N</span>
-                <span> Y</span>
-            </div> */}
+            <br />
             <h2 style={{ color: "gray" }} className='h2'>Company List</h2>
-            <br />
-            <br />
-            {/* <table className='container'>
-            </table> */}
-            <ul className="container">
-                <li className="table-header">
-                    <div className="col col-1">Name</div>
-                    <div className="col col-2">Description</div>
-                    <div className="col col-3">FoundedDate</div>
-                    <div className="col col-4">HeadQuaters</div>
-                    <div className="col col-5">Action</div>
-
-                </li>
-                {displayedItems.map((company, index) => (
-                    <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
-                        <div className="col col-1" data-label="Job Id">
-                            <Link to={`/company/${company.id}`} className='linkk'>{company.name}</Link>
-                        </div>
-                        <div className="col col-2" data-label="Customer Name">{company.description}</div>
-                        <div className="col col-3" data-label="Amount">{company.founded_date}</div>
-                        <div className="col col-4" data-label="Payment Status">{company.headquarters_location}</div>
-                        <div className="col col-5" data-label="Payment Status" style={{ display: "flex" }}>
-                            {/* <button onClick={() => updateCompany(company.id)} data-toggle="modal" data-target="#exampleModal">Update</button>  <button onClick={() => DeleteCompany(company.id)}>Delete</button> */}
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                                <IconButton aria-label="delete" size="large" onClick={() => DeleteCompany(company.id)}>
-                                    <DeleteIcon />
-                                </IconButton>
-                                <EditIcon onClick={() => updateCompany(company.id)} data-toggle="modal" data-target="#exampleModal" style={{ color: "gray", marginTop: "5px" }} />
-                            </Stack>
-                        </div>
-                    </li>
+           <center>
+            
+            <select value={selectedRows} onChange={(e) => setSelectedRows(parseInt(e.target.value))} style={{color:"black",borderRadius:"5px"}}>
+                <option value="" >Select Number of Rows</option>
+                {number_of_rows.map((option) => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
                 ))}
-                <center> <Stack spacing={2}>
-                    <Pagination
-                        count={pageNumbers}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        renderItem={(item) => (
-                            <PaginationItem
-                                component={Link}
-                                to={`/page/${item.page}`}
-                                {...item}
-                            />
+            </select>
+            </center> 
+            <br />
+            <br />
+            {
+                showSrchRst
+                    ? (<ul className="container">
+                        <li className="table-header">
+                            <div className="col col-1">Name</div>
+                            <div className="col col-2">Description</div>
+                            <div className="col col-3">FoundedDate</div>
+                            <div className="col col-4">HeadQuaters</div>
+                            <div className="col col-5">Action</div>
+
+                        </li>
+                        {filteredData.map((company, index) => (
+                            <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
+                                <div className="col col-1" data-label="Job Id">
+                                    <Link to={`/company/${company.id}`} className='linkk'>{company.name}</Link>
+                                </div>
+                                <div className="col col-2" data-label="Customer Name">{company.description}</div>
+                                <div className="col col-3" data-label="Amount">{company.founded_date}</div>
+                                <div className="col col-4" data-label="Payment Status">{company.headquarters_location}</div>
+                                <div className="col col-5" data-label="Payment Status" style={{ display: "flex" }}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        {/* <EditIcon onClick={() => updateCompany(company.id)} data-bs-dismiss="modal" data-bs-target="#exampleModal" style={{ color: "green", marginTop: "5px", cursor: "pointer" }} /> */}
+                                        <IconButton aria-label="edit" size="large" onClick={() => updateCompany(company.id)} data-bs-toggle="modal" data-bs-target="#exampleModal" >
+                                            <EditIcon style={{ color: "green", marginTop: "5px", cursor: "pointer" }} />
+                                        </IconButton>
+                                        <IconButton aria-label="delete" size="large" onClick={() => DeleteCompany(company.id)}>
+                                            <DeleteIcon style={{ color: "red" }} />
+                                        </IconButton>
+
+                                    </Stack>
+                                </div>
+
+                            </li>
+
+                        ))}
+
+
+                        {pageNumbers > 1 && (
+                            <Stack spacing={2}>
+                                <Pagination
+                                    count={pageNumbers}
+                                    page={currentPage}
+                                    onChange={handlePageChange}
+                                    renderItem={(item) => (
+                                        <PaginationItem
+                                            component={Link}
+                                            to={`/page/${item.page}`}
+                                            {...item}
+                                        />
+                                    )}
+                                />
+                            </Stack>
                         )}
-                    />
-                </Stack>
-                </center>
-            </ul>
+                    </ul>
+
+                    ) : empty ? (
+                        <>
+                            <div className='container'>
+                                <li className="table-header">
+                                    <div className="col col-1">Name</div>
+                                    <div className="col col-2">Description</div>
+                                    <div className="col col-3">FoundedDate</div>
+                                    <div className="col col-4">HeadQuaters</div>
+                                    <div className="col col-5">Action</div>
+
+                                </li>
+                                <center>
+                                    <h1 style={{ color: "gray" }}>No results found</h1></center>
+                            </div>
+                        </>
+                    ) :
+                        <ul className="container">
+                            <li className="table-header">
+                                <div className="col col-1">Name</div>
+                                <div className="col col-2">Description</div>
+                                <div className="col col-3">FoundedDate</div>
+                                <div className="col col-4">HeadQuaters</div>
+                                <div className="col col-5">Action</div>
+
+                            </li>
+                            {displayedItems.map((company, index) => (
+                                <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
+                                    <div className="col col-1" data-label="Job Id">
+                                        <Link to={`/company/${company.id}`} className='linkk'>{company.name}</Link>
+                                    </div>
+                                    <div className="col col-2" data-label="Customer Name">{company.description}</div>
+                                    <div className="col col-3" data-label="Amount">{company.founded_date}</div>
+                                    <div className="col col-4" data-label="Payment Status">{company.headquarters_location}</div>
+                                    <div className="col col-5" data-label="Payment Status" style={{ display: "flex" }}>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            {/* <EditIcon onClick={() => updateCompany(company.id)} data-bs-dismiss="modal" data-bs-target="#exampleModal" style={{ color: "green", marginTop: "5px", cursor: "pointer" }} /> */}
+                                            <IconButton aria-label="edit" size="large" onClick={() => updateCompany(company.id)} data-bs-toggle="modal" data-bs-target="#exampleModal" >
+                                                <EditIcon style={{ color: "green", marginTop: "5px", cursor: "pointer" }} />
+                                            </IconButton>
+                                            <IconButton aria-label="delete" size="large" onClick={() => DeleteCompany(company.id)}>
+                                                <DeleteIcon style={{ color: "red" }} />
+                                            </IconButton>
+
+                                        </Stack>
+                                    </div>
+                                </li>
+                            ))}
+
+
+
+                            {pageNumbers > 1 && (
+                                <Stack spacing={2}>
+                                    <Pagination
+                                        count={pageNumbers}
+                                        page={currentPage}
+                                        onChange={handlePageChange}
+                                        renderItem={(item) => (
+                                            <PaginationItem
+                                                component={Link}
+                                                to={`/page/${item.page}`}
+                                                {...item}
+                                            />
+                                        )}
+                                    />
+                                </Stack>
+                            )}
+
+
+                        </ul>
+
+
+
+            }
+
 
 
 
