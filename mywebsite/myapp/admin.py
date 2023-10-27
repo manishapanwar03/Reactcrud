@@ -7,3 +7,4 @@ from myapp.models import *
 
 admin.site.register(Company)
 admin.site.register(Employee)
+admin.site.register(Complain)

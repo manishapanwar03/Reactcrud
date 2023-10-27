@@ -20,3 +20,10 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+class Complain(models.Model):
+    company  = models.ForeignKey(Company, on_delete=models.CASCADE)
+    employee  = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    discriptions = models.CharField(max_length=255)
+    email  = models.EmailField()
+    def __str__(self):
+        return f"{'compalin' ,self.employee.first_name}"

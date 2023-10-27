@@ -8,3 +8,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'  # You can specify specific fields if needed
+class ComplainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complain
+        fields = "__all__"
