@@ -35,6 +35,9 @@ nav {
   white-space: nowrap;
   will-change: box-shadow, transform;
   font-size: 18px;
+  margin-left: 10px;
+  /* display: contents;
+  color: white; */
 }
 
 
@@ -46,18 +49,25 @@ nav {
 body {
   font-family: 'lato', sans-serif;
 }
+.w1{
+  align-items: center;
+    color: gray;
+    display: flex;
+    justify-content: center;  
+}
 
 .linkk {
   color: black;
   /* text-decoration: none; */
+  
 }
 
-.responsive-table .table-row:nth-child(even) {
-  background-color: #f2f2f2;
+ .table-row:nth-child(even) {
+  background-color: white;
 }
 
-.responsive-table .table-row:nth-child(odd) {
-  background-color: #ffffff;
+.table-row:nth-child(odd) {
+  background-color: 	mintcream;
 }
 
 .container {
@@ -105,6 +115,7 @@ li {
 
 .col-2 {
   flex-basis: 10%;
+  
 }
 
 .col-3 {
@@ -376,4 +387,8 @@ label {
 }
 #inputt{
 width: 100%;
+}
+.select{
+  width: 400px;
+  height: 35px;
 }

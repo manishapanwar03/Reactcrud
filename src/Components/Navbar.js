@@ -22,6 +22,7 @@ const Navbar = () => {
     const [companyDescription, setCompanyDescription] = useState('');
     const [companyFoundedDate, setCompanyFoundedDate] = useState('');
     const [companyHeadquaters, setCompanyHeadquaters] = useState('');
+    const [companyTitle, setCompanytitle] = useState('')
     const [apiData, setApiData] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState(null);
     const expense_typeOptions = ["Indore", "Ujjain", "Bhopal", "Pune", "udiapur"];
@@ -39,7 +40,16 @@ const Navbar = () => {
     const [selectedRows, setSelectedRows] = useState(4);
     const [pages, setPages] = useState("")
     const [show, setShow] = useState(1);
-
+    const [complainCompany, setComplaincompany] = useState("");
+    const [complainEmployee, setComplainEmployee] = useState("")
+    const [complainDescription, setcomplainDescription] = useState('');
+    const [complainemail, setComplainemail] = useState("")
+    const [complainTitle, setComplainTitle] = useState("")
+    // const [roomOptionsData, setRoomOptionsData] = useState([]);
+    const [companyoptionsData, setCompanyoptionsData] = useState([]);
+    const [cmpSelected, setCmpSelected] = useState("");
+    const [employeeoptionsData, setEmployeeoptionsData] = useState([]);
+    const [empSelected, setEmpSelected] = useState("");
     const postCompany = () => {
         let dataObj = {
             name: companyName,
@@ -94,6 +104,36 @@ const Navbar = () => {
                 });
         }
     }
+    const postComplain = () => {
+        let dataObj1 = {
+            company: cmpSelected,
+            employee: empSelected,
+            title: complainTitle,
+            discriptions: complainDescription,
+            email: complainemail,
+        };
+
+        axios.post('http://127.0.0.1:8000/api/complains/', dataObj1)
+            .then((response) => {
+                setcomplainDescription('');
+                setComplainemail('');
+                // setCompanyHeadquaters('');
+                fetchCompanyData();
+                Swal.fire({
+                    title: "Added",
+                    text: "Your file has been Added.",
+                    icon: "success",
+                    timer: 1000,
+                    showConfirmButton: false,
+                }
+                )
+
+            })
+            .catch((error) => {
+                console.error("Error adding company:", error);
+            });
+    }
+
     const updateCompany = (companyId) => {
         axios.get(`http://127.0.0.1:8000/api/companies/${companyId}/`)
             .then((response) => {
@@ -147,19 +187,19 @@ const Navbar = () => {
             }
         })
     }
-    const fetchCompanyData = () => {
-        axios.get('http://127.0.0.1:8000/api/companies/')
-            .then((response) => {
-                // console.log(response);
-                setApiData(response.data);
-            })
-            .catch((error) => {
-                // console.error(error);
-            });
-    };
-
+  
     useEffect(() => {
         fetchCompanyData();
+        axios.get('http://127.0.0.1:8000/api/companies/')
+            .then((response) => {
+                setCompanyoptionsData(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+
+
 
     }, []);
 
@@ -238,71 +278,43 @@ const Navbar = () => {
     };
 
 
+    const fetchCompanyData = () => {
+        axios.get('http://127.0.0.1:8000/api/companies/')
+            .then((response) => {
+                // console.log(response);
+                setApiData(response.data);
+                setCompanyoptionsData(response.data);
+            })
+            .catch((error) => {
+                // console.error(error);
+            });
+    };
+
+
+    const handleCpmSlt = (e) => {
+        const selectedCompany = e.target.value;
+        console.log('Selected Company:', selectedCompany);
+        setCmpSelected(selectedCompany);
+
+        axios.get('http://127.0.0.1:8000/api/employees/')
+            .then((response) => {
+                console.log(response.data)
+                const filteredEmployees = response.data.filter(employee => employee.company == selectedCompany);
+                debugger
+                console.log('Filtered Employees:', filteredEmployees);
+                setEmployeeoptionsData(filteredEmployees);
+            })
+            .catch((error) => {
+                console.log(' Error:', error);
+            });
+    }
+
+
     return (
         <div>
             <nav className="navbar justify-content-between navbar-fixed" id='i1'>
                 <a className="navbar-brand">
-                    {/* <button type="button" data-toggle="modal" data-target="#exampleModal" className='button-30'>
-                        AddCompany
-                    </button>   */}
-                    {/* <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div classNameName="modal-dialog" role="document">
-                            <div classNameName="modal-content">
-
-                                <div className="modal-body">
-                                    <form onSubmit={handleSubmit} className='containerr'>
-                                        <center>
-                                            <div>
-                                                
-                                            </div>
-                                        </center>
-                                        <div className="mb-3">
-                                            <label htmlFor="exampleInputEmail1" className="form-label">Company Name</label>
-                                            <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Enter Name" />
-
-                                        </div>
-                                        <div className="mb-3">
-                                            <label htmlFor="exampleInputPassword1" className="form-label">Description</label>
-                                            <input type="text" className="form-control" id="exampleInputPassword1" value={companyDescription} onChange={(e) => setCompanyDescription(e.target.value)} placeholder="Enter Description" />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label htmlFor="exampleInputEmail1" className="form-label">FoundedDate</label>
-                                            <input type="date" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={companyFoundedDate} onChange={(e) => setCompanyFoundedDate(e.target.value)} placeholder="Enter FoundedDate" />
-
-                                        </div>
-                                        <div className="mb-3">
-                                            <label htmlFor="exampleInputPassword1" className="form-label">companyHeadquaters</label>
-                                            <select value={companyHeadquaters} onChange={(e) => setCompanyHeadquaters(e.target.value)} className="form-control" id="exampleInputPassword1">
-                                                <option value="" disabled>Select Expense Type</option>
-                                                {expense_typeOptions.map((option) => (
-                                                    <option key={option} value={option}>{option}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <button onClick={postCompany} className="btn btn-primary">
-                                                {selectedCompanyId ? "Update" : "AddCompany"}
-                                            </button>
-
-                                        </div>
-
-                                    </form>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" className="btn btn-primary">Save changes</button>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div> */}
-
-                    <button type="button" className="button-30" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        AddCompany
-                    </button>
-
-
+                    <button type="button" className="button-30" data-bs-toggle="modal" data-bs-target="#exampleModal"> AddCompany</button>   <button type="button" className="button-30" data-bs-toggle="modal" data-bs-target="#exampleModal2" style={{ marginLeft: "10px" }}> AddComplain </button>
                     <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div className="modal-dialog">
                             <div className="modal-content">
@@ -338,7 +350,6 @@ const Navbar = () => {
                                                 ))}
                                             </select>
                                         </div>
-
                                     </form>
 
 
@@ -349,44 +360,80 @@ const Navbar = () => {
                             </div>
                         </div>
                     </div>
+                    <div className="modal fade" id="exampleModal2" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+
+                                <div className="modal-body">
+                                    <form onSubmit={handleSubmit} className='containerr'>
+                                        <div className="mb-3">
+                                            <label htmlFor="companySelect" className="form-label">Company</label>
+                                            <select className='select' value={cmpSelected} onChange={handleCpmSlt} id="companySelect">
+                                                <option value="" disabled>Select company</option>
+
+                                                {companyoptionsData.map((option) => (
+
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.name}
+
+                                                    </option>
+
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="employeeSelect" className="form-label">Employee</label>
+                                            <select className='select' value={empSelected} onChange={(e) => setEmpSelected(e.target.value)} id="employeeSelect">
+                                                <option value="" disabled>Select Employee</option>
+                                                {employeeoptionsData.map((option) => (
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.first_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputPassword1" className="form-label">Title</label>
+                                            <input type="text" className="form-control" id="exampleInputPassword1" value={complainTitle} onChange={(e) => setComplainTitle(e.target.value)} placeholder="Enter Description" />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputPassword1" className="form-label">Description</label>
+                                            <input type="text" className="form-control" id="exampleInputPassword1" value={complainDescription} onChange={(e) => setcomplainDescription(e.target.value)} placeholder="Enter Description" />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="exampleInputEmail1" className="form-label">Email</label>
+                                            <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={complainemail} onChange={(e) => setComplainemail(e.target.value)} placeholder="Enter FoundedDate" />
+
+                                        </div>
+
+                                    </form>
+
+
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" onClick={postComplain} className="btn btn-secondary" data-bs-dismiss="modal" >AddComplain</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </a>
                 <form className="form-inline">
-                    {/* <div className='main_day4'>
-                        {show ? (
-                            <>
-                                <SearchIcon onClick={handleShow} id='btn' style={{ color: "white", margin: "20px" }} />
-                            </>
-
-                        ) : (
-                            <>
-                                <div style={{ display: "flex" }}>
-                                    <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value={searchQuery} onChange={performSearch} id="inputt" />
-                                    <button id='btn' onClick={handleShow}><i className='fas fa-search'></i></button>
-                                    <SearchIcon onClick={handleShow} id='btn' style={{ color: "white" }} />
-                                </div>
-
-                            </>
-
-                        )}
-
-                    </div> */}
                     <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value={searchQuery} onChange={performSearch} id="inputt" />
 
                 </form>
             </nav>
             <br />
             <h2 style={{ color: "gray" }} className='h2'>Company List</h2>
-           <center>
-            
-            <select value={selectedRows} onChange={(e) => setSelectedRows(parseInt(e.target.value))} style={{color:"black",borderRadius:"5px"}}>
-                <option value="" >Select Number of Rows</option>
-                {number_of_rows.map((option) => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            </center> 
+            <center>
+                <select value={selectedRows} onChange={(e) => setSelectedRows(parseInt(e.target.value))} style={{ color: "black", borderRadius: "5px" }}>
+                    <option value="" >Select Number of Rows</option>
+                    {number_of_rows.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </center>
             <br />
             <br />
             {
@@ -403,14 +450,13 @@ const Navbar = () => {
                         {filteredData.map((company, index) => (
                             <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
                                 <div className="col col-1" data-label="Job Id">
-                                    <Link to={`/company/${company.id}`} className='linkk'>{company.name}</Link>
+                                    <center>   <Link to={`/company/${company.id}/${company.name}`} className='linkk'>{company.name}</Link></center>
                                 </div>
                                 <div className="col col-2" data-label="Customer Name">{company.description}</div>
                                 <div className="col col-3" data-label="Amount">{company.founded_date}</div>
                                 <div className="col col-4" data-label="Payment Status">{company.headquarters_location}</div>
                                 <div className="col col-5" data-label="Payment Status" style={{ display: "flex" }}>
                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                        {/* <EditIcon onClick={() => updateCompany(company.id)} data-bs-dismiss="modal" data-bs-target="#exampleModal" style={{ color: "green", marginTop: "5px", cursor: "pointer" }} /> */}
                                         <IconButton aria-label="edit" size="large" onClick={() => updateCompany(company.id)} data-bs-toggle="modal" data-bs-target="#exampleModal" >
                                             <EditIcon style={{ color: "green", marginTop: "5px", cursor: "pointer" }} />
                                         </IconButton>
@@ -472,14 +518,13 @@ const Navbar = () => {
                             {displayedItems.map((company, index) => (
                                 <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
                                     <div className="col col-1" data-label="Job Id">
-                                        <Link to={`/company/${company.id}`} className='linkk'>{company.name}</Link>
+                                        <center>  <Link to={`/company/${company.id}/${company.name}`} className='linkk' style={{ alignItems: "center", justifyContent: "center", display: "flex" }}>{company.name}</Link></center>
                                     </div>
                                     <div className="col col-2" data-label="Customer Name">{company.description}</div>
                                     <div className="col col-3" data-label="Amount">{company.founded_date}</div>
                                     <div className="col col-4" data-label="Payment Status">{company.headquarters_location}</div>
                                     <div className="col col-5" data-label="Payment Status" style={{ display: "flex" }}>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            {/* <EditIcon onClick={() => updateCompany(company.id)} data-bs-dismiss="modal" data-bs-target="#exampleModal" style={{ color: "green", marginTop: "5px", cursor: "pointer" }} /> */}
                                             <IconButton aria-label="edit" size="large" onClick={() => updateCompany(company.id)} data-bs-toggle="modal" data-bs-target="#exampleModal" >
                                                 <EditIcon style={{ color: "green", marginTop: "5px", cursor: "pointer" }} />
                                             </IconButton>
@@ -523,8 +568,8 @@ const Navbar = () => {
 
         </div>
     )
-}
 
+}
 export default Navbar
 
 
