@@ -19,7 +19,7 @@ urlpatterns = [
     path('api/employees/<int:pk>/', EmployeeRetrieveUpdateDestroyView.as_view(), name='employee-retrieve-update-destroy'),
     path('api/companiesemp/<int:pk>/',EmployeeViewSet.as_view({"get":"retrieve"}),name = 'lkd'),
     path('api/empcomplains/<int:pk>/',ComplainViewSet.as_view({"get":"retrieve"}),name = 'sdk'),
-    path('complains/', ComplainListCreateView.as_view(), name='complain-list'),
-    path('complains/<int:pk>/', ComplainRetrieveUpdateDestroyView.as_view(), name='complain-detail'),
+    path('api/complains/', ComplainListCreateView.as_view(), name='complain-list'),
+    path('api/complains/<int:pk>/', ComplainRetrieveUpdateDestroyView.as_view(), name='complain-detail'),
 ]
 

@@ -23,6 +23,7 @@ class Employee(models.Model):
 class Complain(models.Model):
     company  = models.ForeignKey(Company, on_delete=models.CASCADE)
     employee  = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    title=models.CharField(max_length=50)
     discriptions = models.CharField(max_length=255)
     email  = models.EmailField()
     def __str__(self):
