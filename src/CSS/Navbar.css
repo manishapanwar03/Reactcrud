@@ -3,7 +3,7 @@
   width: 400px;
 }
 nav {
-  background-color: #6b7676;
+  background-color: cadetblue;
 }
 
 .button-30 {
@@ -67,7 +67,7 @@ body {
 }
 
 .table-row:nth-child(odd) {
-  background-color: 	mintcream;
+  background-color: 	whitesmoke;
 }
 
 .container {
@@ -97,7 +97,7 @@ li {
 }
 
 .table-header {
-  background-color: #6b7676;
+  background-color:cadetblue;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.03em;

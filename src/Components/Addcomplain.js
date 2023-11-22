@@ -12,6 +12,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import ReactReadMoreReadLess from "react-read-more-read-less";
+import { useDispatch, useSelector } from 'react-redux';
+import { complain_deleteapi, getapi } from '../Redux/Action/Complain_Action';
+import { get_api_data } from '../Redux/Action/Complain_Action';
 
 
 const AddComplain = () => {
@@ -22,6 +25,9 @@ const AddComplain = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [getUsers, setGetUsers] = useState(false);
     const [show, setShow] = useState(1);
+    const dispatch = useDispatch();
+    const empApidata = useSelector((state) => state.listReducer2.list)
+    console.log(empApidata);
 
 
 
@@ -52,65 +58,80 @@ const AddComplain = () => {
 
 
     const DeleteComplain = (ComplainId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios.delete(`http://127.0.0.1:8000/api/complains/${ComplainId}`)
-                    .then((response) => {
-                        console.log("Complain deleted:", ComplainId);
-                        fetchComplainData();
-                        Swal.fire({
-                            title: "done",
-                            text: "deleted!",
-                            icon: "success",
-                            timer: 1000,
-                            showConfirmButton: false,
-                        })
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                    });
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: "You won't be able to revert this!",
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonText: 'Yes, delete it!',
+        //     cancelButtonText: 'No, cancel!',
+        //     reverseButtons: true
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         axios.delete(`http://127.0.0.1:8000/api/complains/${ComplainId}`)
+        //             .then((response) => {
+        //                 console.log("Complain deleted:", ComplainId);
+        //                 fetchComplainData();
+        //                 Swal.fire({
+        //                     title: "done",
+        //                     text: "deleted!",
+        //                     icon: "success",
+        //                     timer: 1000,
+        //                     showConfirmButton: false,
+        //                 })
+        //             })
+        //             .catch((error) => {
+        //                 console.error("Error:", error);
+        //             });
 
-            } else if (
-                result.dismiss === Swal.DismissReason.cancel
-            ) {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: "Your imaginary file is safe :)",
-                    icon: 'error',
-                    timer: 1000,
-                    showConfirmButton: false,
-                }
-                )
-            }
-        })
+        //     } else if (
+        //         result.dismiss === Swal.DismissReason.cancel
+        //     ) {
+        //         Swal.fire({
+        //             title: 'Cancelled',
+        //             text: "Your imaginary file is safe :)",
+        //             icon: 'error',
+        //             timer: 1000,
+        //             showConfirmButton: false,
+        //         }
+        //         )
+        //     }
+        // })
+        dispatch(complain_deleteapi(ComplainId,id));
 
-
+       
 
     }
+    useEffect(()=>{
+        if(empApidata!==null){
+            setApiData(empApidata)
+        }
+        // if (empOptData !== null) {
+        //     fetchEmployeeData(empOptData);
+        // }
+       
+    },[empApidata])
+    
     const fetchComplainData = () => {
-        axios.get(`http://127.0.0.1:8000/api/empcomplains/${id}/`)
-            .then((response) => {
-                console.log(response);
-                setApiData(response.data);
-                setGetUsers(true);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-
+        // axios.get(`http://127.0.0.1:8000/api/empcomplains/${id}/`)
+        //     .then((response) => {
+        //         console.log(response);
+        //         setApiData(response.data);
+        //         setGetUsers(true);
+        //     })
+        //     .catch((error) => {
+        //         console.error(error);
+        //     });
+        dispatch(get_api_data(id));
     };
 
     useEffect(() => {
-        fetchComplainData();
+        dispatch(get_api_data(id));
     }, []);
+
+    // useEffect(() => {
+    //     dispatch(getapi(id));
+    // }, []); 
 
     const pageNumbers = Math.ceil(apiData.length / itemsPerPage);
 

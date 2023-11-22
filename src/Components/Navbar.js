@@ -14,6 +14,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { createSvgIcon } from '@mui/material/utils';
 import SearchIcon from '@mui/icons-material/Search';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteapi, getapi, postapi, putapi } from '../Redux/Action/Company_Action';
+import { complain_postapi, postRes } from '../Redux/Action/Complain_Action';
+import { getEmpApi, get_api_data1 } from '../Redux/Action/Employee_Action';
 
 
 
@@ -29,8 +33,7 @@ const Navbar = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // const [itemsPerPage, setItemsPerPage] = useState(5);
-
+    const [selected, setSelected] = useState(4)
     const [filteredData, setFilteredData] = useState([]);
     const [showSrchRst, setShowSrchRst] = useState(false);
     const [empty, setEmpty] = useState("")
@@ -50,6 +53,15 @@ const Navbar = () => {
     const [cmpSelected, setCmpSelected] = useState("");
     const [employeeoptionsData, setEmployeeoptionsData] = useState([]);
     const [empSelected, setEmpSelected] = useState("");
+
+    const dispatch = useDispatch();
+    const reduxApidata = useSelector((state) => state.listReducer.list)
+    console.log(reduxApidata);
+
+    const empOptData = useSelector((state) => state.listReducer1.list);
+    const postdata1 = useSelector((state) => state.listReducer2.postdata);
+    const postdata2 = useSelector((state) => state.listReducer.postdataa);
+
     const postCompany = () => {
         let dataObj = {
             name: companyName,
@@ -58,52 +70,78 @@ const Navbar = () => {
             headquarters_location: companyHeadquaters,
         };
         if (selectedCompanyId) {
-            axios.put(`http://127.0.0.1:8000/api/companies/${selectedCompanyId}/`, dataObj)
-                .then((response) => {
-                    // console.log("Company updated:", selectedCompanyId);
-                    setCompanyName('');
-                    setCompanyDescription('');
-                    setCompanyFoundedDate('');
-                    setCompanyHeadquaters('');
-                    setSelectedCompanyId(null);
-                    fetchCompanyData();
-                    Swal.fire({
-                        title: "Updated",
-                        text: "Your file has been Updated.",
-                        icon: "success",
-                        timer: 1000,
-                        showConfirmButton: false,
+            // axios.put(`http://127.0.0.1:8000/api/companies/${selectedCompanyId}/`, dataObj)
+            //     .then((response) => {
+            //         // console.log("Company updated:", selectedCompanyId);
+            // setCompanyName('');
+            // setCompanyDescription('');
+            // setCompanyFoundedDate('');
+            // setCompanyHeadquaters('');
+            // setSelectedCompanyId(null);
+            // fetchCompanyData();
+            //         Swal.fire({
+            //             title: "Updated",
+            //             text: "Your file has been Updated.",
+            //             icon: "success",
+            //             timer: 1000,
+            //             showConfirmButton: false,
 
-                    })
-                })
-                .catch((error) => {
-                    // console.error("Error updating company:", error);
-                });
+            //         })
+            //     })
+            //     .catch((error) => {
+            //         // console.error("Error updating company:", error);
+            //     });
+            dispatch(putapi(selectedCompanyId, dataObj))
+            // setCompanyName('');
+            // setCompanyDescription('');
+            // setCompanyFoundedDate('');
+            // setCompanyHeadquaters('');
+            // setSelectedCompanyId(null);
+            // fetchCompanyData();
         } else {
 
-            axios.post('http://127.0.0.1:8000/api/companies/', dataObj)
-                .then((response) => {
-                    // console.log("Company added:", response.data);
-                    setCompanyName('');
-                    setCompanyDescription('');
-                    setCompanyFoundedDate('');
-                    setCompanyHeadquaters('');
-                    fetchCompanyData();
-                    Swal.fire({
-                        title: "Added",
-                        text: "Your file has been Added.",
-                        icon: "success",
-                        timer: 1000,
-                        showConfirmButton: false,
-                    }
-                    )
+            //     axios.post('http://127.0.0.1:8000/api/companies/', dataObj)
+            //         .then((response) => {
+            //             // console.log("Company added:", response.data);
+            // setCompanyName('');
+            // setCompanyDescription('');
+            // setCompanyFoundedDate('');
+            // setCompanyHeadquaters('');
+            // fetchCompanyData();
+            // Swal.fire({
+            //     title: "Added",
+            //     text: "Your file has been Added.",
+            //     icon: "success",
+            //     timer: 1000,
+            //     showConfirmButton: false,
+            // }
+            // )
 
-                })
-                .catch((error) => {
-                    console.error("Error adding company:", error);
-                });
+            //         })
+            //         .catch((error) => {
+            //             console.error("Error adding company:", error);
+            //         });
+            dispatch(postapi(dataObj))
+            // setCompanyName('');
+            // setCompanyDescription('');
+            // setCompanyFoundedDate('');
+            // setCompanyHeadquaters('');
+            fetchCompanyData();
         }
+
     }
+
+    useEffect(()=>{
+        if(postdata2){
+            setCompanyName('');
+            setCompanyDescription('');
+            setCompanyFoundedDate('');
+            setCompanyHeadquaters('');
+            // setSelectedCompanyId(null);
+            // fetchCompanyData()
+        }
+    },[postdata2])
+    
     const postComplain = () => {
         let dataObj1 = {
             company: cmpSelected,
@@ -113,25 +151,30 @@ const Navbar = () => {
             email: complainemail,
         };
 
-        axios.post('http://127.0.0.1:8000/api/complains/', dataObj1)
-            .then((response) => {
-                setcomplainDescription('');
-                setComplainemail('');
-                // setCompanyHeadquaters('');
-                fetchCompanyData();
-                Swal.fire({
-                    title: "Added",
-                    text: "Your file has been Added.",
-                    icon: "success",
-                    timer: 1000,
-                    showConfirmButton: false,
-                }
-                )
+        // axios.post('http://127.0.0.1:8000/api/complains/', dataObj1)
+        //     .then((response) => {
+        // setcomplainDescription('');
+        // setComplainemail('');
+        // // setCompanyHeadquaters('');
+        // fetchCompanyData();
+        //         Swal.fire({
+        //             title: "Added",
+        //             text: "Your file has been Added.",
+        //             icon: "success",
+        //             timer: 1000,
+        //             showConfirmButton: false,
+        //         }
+        //         )
 
-            })
-            .catch((error) => {
-                console.error("Error adding company:", error);
-            });
+        //     })
+        //     .catch((error) => {
+        //         console.error("Error adding company:", error);
+        //     });
+        dispatch(complain_postapi(dataObj1));
+        // setcomplainDescription('');
+        // setComplainemail('');
+        // setCompanyHeadquaters('');
+        fetchCompanyData();
     }
 
     const updateCompany = (companyId) => {
@@ -149,54 +192,78 @@ const Navbar = () => {
             });
     }
     const DeleteCompany = (companyId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios.delete(`http://127.0.0.1:8000/api/companies/${companyId}`)
-                    .then((response) => {
-                        fetchCompanyData();
-                        Swal.fire({
-                            title: "done",
-                            text: "deleted!",
-                            icon: "success",
-                            timer: 1000,
-                            showConfirmButton: false,
-                        })
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                    });
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: "You won't be able to revert this!",
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonText: 'Yes, delete it!',
+        //     cancelButtonText: 'No, cancel!',
+        //     reverseButtons: true
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         axios.delete(`http://127.0.0.1:8000/api/companies/${companyId}`)
+        //             .then((response) => {
+        //                 fetchCompanyData();
+        //                 Swal.fire({
+        //                     title: "done",
+        //                     text: "deleted!",
+        //                     icon: "success",
+        //                     timer: 1000,
+        //                     showConfirmButton: false,
+        //                 })
+        //             })
+        //             .catch((error) => {
+        //                 console.error("Error:", error);
+        //             });
 
 
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: "Your imaginary file is safe :)",
-                    icon: 'error',
-                    timer: 1000,
-                    showConfirmButton: false,
-                }
-                )
-            }
-        })
+
+        //     } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //         Swal.fire({
+        //             title: 'Cancelled',
+        //             text: "Your imaginary file is safe :)",
+        //             icon: 'error',
+        //             timer: 1000,
+        //             showConfirmButton: false,
+        //         }
+        //         )
+        //     }
+        // })
+        dispatch(deleteapi(companyId))
     }
-  
+
+
+    useEffect(() => {
+        if (postdata1) {
+            setcomplainDescription('');
+            setComplainemail('');
+            setComplainTitle('');
+            setEmpSelected("");
+            setCmpSelected("");
+        }
+    }, [postdata1])
+    useEffect(() => {
+        if (reduxApidata !== null) {
+            setApiData(reduxApidata);
+        }
+
+        if (empOptData !== null) {
+            setEmployeeoptionsData(empOptData);
+        }
+    }, [reduxApidata, empOptData])
+
+
     useEffect(() => {
         fetchCompanyData();
-        axios.get('http://127.0.0.1:8000/api/companies/')
-            .then((response) => {
-                setCompanyoptionsData(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        dispatch(getapi())
+        // axios.get('http://127.0.0.1:8000/api/companies/')
+        //     .then((response) => {
+        //         setCompanyoptionsData(response.data);
+        //     })
+        //     .catch((error) => {
+        //         console.log(error);
+        //     });
 
 
 
@@ -227,15 +294,15 @@ const Navbar = () => {
             setEmpty(filteredData !== apiData)
         }
     }
-    const handleShow = () => {
-        if (show === 1) {
-            document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4 active");
-            setShow(0);
-        } else {
-            document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4");
-            setShow(1);
-        }
-    }
+    // const handleShow = () => {
+    //     if (show === 1) {
+    //         document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4 active");
+    //         setShow(0);
+    //     } else {
+    //         document.getElementsByClassName("main_day4")[0].setAttribute("class", "main_day4");
+    //         setShow(1);
+    //     }
+    // }
 
 
     const pageNumbers = Math.ceil(apiData.length / selectedRows);
@@ -278,36 +345,73 @@ const Navbar = () => {
     };
 
 
+    // const fetchCompanyData = () => {
+    //     axios.get('http://127.0.0.1:8000/api/companies/')
+    //         .then((response) => {
+    //             // console.log(response);
+    //             setApiData(response.data);
+    //             setCompanyoptionsData(response.data);
+    //         })
+    //         .catch((error) => {
+    //             // console.error(error);
+    //         });
+    // };
+
+    // const fetchCompanyData = () => {
+    //     axios.get('http://127.0.0.1:8000/api/companies/')
+    //       .then((response) => {
+    //         const sortedData = sortCompaniesByName(response.data);
+    //         setApiData(sortedData);
+    //         setCompanyoptionsData(sortedData);
+    //       })
+    //       .catch((error) => {
+    //         // Handle the error
+    //       });
+    //   };
+
     const fetchCompanyData = () => {
         axios.get('http://127.0.0.1:8000/api/companies/')
             .then((response) => {
-                // console.log(response);
-                setApiData(response.data);
-                setCompanyoptionsData(response.data);
+                const sortedData = sortCompaniesByName(response.data);
+                setApiData(sortedData);
+                setCompanyoptionsData(sortedData);
             })
             .catch((error) => {
-                // console.error(error);
+                // Handle the error
             });
     };
+
+    const sortCompaniesByName = (data) => {
+        return data.slice().sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+    };
+
 
 
     const handleCpmSlt = (e) => {
         const selectedCompany = e.target.value;
         console.log('Selected Company:', selectedCompany);
         setCmpSelected(selectedCompany);
+        const cmpId = JSON.parse(e.target.value);
 
-        axios.get('http://127.0.0.1:8000/api/employees/')
-            .then((response) => {
-                console.log(response.data)
-                const filteredEmployees = response.data.filter(employee => employee.company == selectedCompany);
-                debugger
-                console.log('Filtered Employees:', filteredEmployees);
-                setEmployeeoptionsData(filteredEmployees);
-            })
-            .catch((error) => {
-                console.log(' Error:', error);
-            });
+        dispatch(getEmpApi(cmpId));
+
+        // axios.get('http://127.0.0.1:8000/api/employees/')
+        //     .then((response) => {
+        //         console.log(response.data)
+        //         const filteredEmployees = response.data.filter(employee => employee.company == selectedCompany);
+        //         debugger
+        //         console.log('Filtered Employees:', filteredEmployees);
+        //         setEmployeeoptionsData(filteredEmployees);
+        //     })
+        //     .catch((error) => {
+        //         console.log(' Error:', error);
+        //     })
     }
+
+
+
 
 
     return (
@@ -423,10 +527,10 @@ const Navbar = () => {
                 </form>
             </nav>
             <br />
-            <h2 style={{ color: "gray" }} className='h2'>Company List</h2>
+            <h2 style={{ color: "cadetblue" }} className='h2'>Company List</h2>
             <center>
                 <select value={selectedRows} onChange={(e) => setSelectedRows(parseInt(e.target.value))} style={{ color: "black", borderRadius: "5px" }}>
-                    <option value="" >Select Number of Rows</option>
+                    <option value={selected} >Select Number of Rows</option>
                     {number_of_rows.map((option) => (
                         <option key={option} value={option}>
                             {option}
@@ -518,7 +622,9 @@ const Navbar = () => {
                             {displayedItems.map((company, index) => (
                                 <li className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`} key={company.id}>
                                     <div className="col col-1" data-label="Job Id">
-                                        <center>  <Link to={`/company/${company.id}/${company.name}`} className='linkk' style={{ alignItems: "center", justifyContent: "center", display: "flex" }}>{company.name}</Link></center>
+                                        <center>  <Link to={`/company/${company.id}/${company.name}`} className='linkk' style={{ alignItems: "center", justifyContent: "center", display: "flex" }}>{company.name}
+
+                                        </Link></center>
                                     </div>
                                     <div className="col col-2" data-label="Customer Name">{company.description}</div>
                                     <div className="col col-3" data-label="Amount">{company.founded_date}</div>
@@ -562,9 +668,6 @@ const Navbar = () => {
 
 
             }
-
-
-
 
         </div>
     )

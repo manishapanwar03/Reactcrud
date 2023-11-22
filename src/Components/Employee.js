@@ -12,6 +12,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
+import { useDispatch, useSelector } from 'react-redux';
+import { getEmpApi } from '../Redux/Action/Employee_Action';
+import { postapi } from '../Redux/Action/Employee_Action';
+import { putapi } from '../Redux/Action/Employee_Action';
+import { deleteapi } from '../Redux/Action/Employee_Action';
 
 const Employee = () => {
     const { id, cmpName } = useParams();
@@ -28,7 +33,14 @@ const Employee = () => {
 
     const [getUsers, setGetUsers] = useState(false);
     const [show, setShow] = useState(1);
+    const [employeeoptionsData, setEmployeeoptionsData] = useState([]);
 
+    const dispatch = useDispatch();
+    const empApidata = useSelector((state) => state.listReducer1.list)
+    console.log(empApidata);
+
+    const empOptData = useSelector((state) => state.listReducer2.list);
+    const postRes3= useSelector((state) => state.listReducer1.postdataaa);
 
 
     const postEmployee = () => {
@@ -42,53 +54,77 @@ const Employee = () => {
 
         };
         if (selectedEmployeeId) {
-            axios.put(`http://127.0.0.1:8000/api/employees/${selectedEmployeeId}/`, dataObj)
-                .then((response) => {
-                    console.log("Employee updated:", selectedEmployeeId);
-                    setEmployeeName('');
-                    setEmployeeLastname('');
-                    setEmployeeEmail('');
-                    setEmployeePhone('');
-                    setEmployeeHiredate('');
-                    setSelectedEmployeeId(null);
-                    fetchEmployeeData();
-                    Swal.fire({
-                        title: "Updated",
-                        text: "Your file has been Updated.",
-                        icon: "success",
-                        timer: 1000,
-                        showConfirmButton: false,
+            // axios.put(`http://127.0.0.1:8000/api/employees/${selectedEmployeeId}/`, dataObj)
+            //     .then((response) => {
+            //         console.log("Employee updated:", selectedEmployeeId);
+                    // setEmployeeName('');
+                    // setEmployeeLastname('');
+                    // setEmployeeEmail('');
+                    // setEmployeePhone('');
+                    // setEmployeeHiredate('');
+                    // setSelectedEmployeeId(null);
+                    // fetchEmployeeData();
+            //         Swal.fire({
+            //             title: "Updated",
+            //             text: "Your file has been Updated.",
+            //             icon: "success",
+            //             timer: 1000,
+            //             showConfirmButton: false,
 
-                    })
-                })
-                .catch((error) => {
-                    console.error("Error updating Employee:", error);
-                });
+            //         })
+            //     })
+            //     .catch((error) => {
+            //         console.error("Error updating Employee:", error);
+            //     });
+            dispatch(putapi(selectedEmployeeId,dataObj,id))
+            setEmployeeName('');
+            setEmployeeLastname('');
+            setEmployeeEmail('');
+            setEmployeePhone('');
+            setEmployeeHiredate('');
+            setSelectedEmployeeId(null);
+            fetchEmployeeData();
         } else {
 
-            axios.post('http://127.0.0.1:8000/api/employees/', dataObj)
-                .then((response) => {
-                    console.log("Employee added:", response.data);
-                    setEmployeeName('');
-                    setEmployeeLastname('');
-                    setEmployeeEmail('');
-                    setEmployeePhone('');
-                    setEmployeeHiredate('');
-                    fetchEmployeeData();
-                    Swal.fire({
-                        title: "Added",
-                        text: "Your file has been Added.",
-                        icon: "success",
-                        timer: 1000,
-                        showConfirmButton: false,
-                    }
-                    )
-                })
-                .catch((error) => {
-                    console.error("Error adding Employee:", error);
-                });
+            // axios.post('http://127.0.0.1:8000/api/employees/', dataObj)
+            //     .then((response) => {
+            //         console.log("Employee added:", response.data);
+                    // setEmployeeName('');
+                    // setEmployeeLastname('');
+                    // setEmployeeEmail('');
+                    // setEmployeePhone('');
+                    // setEmployeeHiredate('');
+                    // fetchEmployeeData();
+            //         Swal.fire({
+            //             title: "Added",
+            //             text: "Your file has been Added.",
+            //             icon: "success",
+            //             timer: 1000,
+            //             showConfirmButton: false,
+            //         }
+            //         )
+            //     })
+            //     .catch((error) => {
+            //         console.error("Error adding Employee:", error);
+            //     });
+            dispatch(postapi(dataObj,id))
+            setEmployeeName('');
+            setEmployeeLastname('');
+            setEmployeeEmail('');
+            setEmployeePhone('');
+            setEmployeeHiredate('');
+            fetchEmployeeData();
         }
     }
+    useEffect(()=>{
+        if(postRes3){
+            setEmployeeName('');
+            setEmployeeLastname('');
+            setEmployeeEmail('');
+            setEmployeePhone('');
+            setEmployeeHiredate('');
+        }
+    },[postRes3])
     const updateEmployee = (EmployeeId) => {
         console.log("Update button clicked");
         axios.get(`http://127.0.0.1:8000/api/employees/${EmployeeId}/`)
@@ -106,6 +142,7 @@ const Employee = () => {
                 console.error("Error fetching Employee data for update:", error);
             });
     }
+
     const performSearch = (e) => {
         const value = e.target.value;
         setSearchQuery(value);
@@ -131,64 +168,87 @@ const Employee = () => {
 
 
     const DeleteEmployee = (EmployeeId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios.delete(`http://127.0.0.1:8000/api/employees/${EmployeeId}`)
-                    .then((response) => {
-                        console.log("Employee deleted:", EmployeeId);
-                        fetchEmployeeData();
-                        Swal.fire({
-                            title: "done",
-                            text: "deleted!",
-                            icon: "success",
-                            timer: 1000,
-                            showConfirmButton: false,
-                        })
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                    });
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: "You won't be able to revert this!",
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonText: 'Yes, delete it!',
+        //     cancelButtonText: 'No, cancel!',
+        //     reverseButtons: true
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         axios.delete(`http://127.0.0.1:8000/api/employees/${EmployeeId}`)
+        //             .then((response) => {
+        //                 console.log("Employee deleted:", EmployeeId);
+                        // fetchEmployeeData();
+        //                 Swal.fire({
+        //                     title: "done",
+        //                     text: "deleted!",
+        //                     icon: "success",
+        //                     timer: 1000,
+        //                     showConfirmButton: false,
+        //                 })
+        //             })
+        //             .catch((error) => {
+        //                 console.error("Error:", error);
+        //             });
 
-            } else if (
-                result.dismiss === Swal.DismissReason.cancel
-            ) {
-                Swal.fire({
-                    title: 'Cancelled',
-                    text: "Your imaginary file is safe :)",
-                    icon: 'error',
-                    timer: 1000,
-                    showConfirmButton: false,
-                }
-                )
-            }
-        })
+        //     } else if (
+        //         result.dismiss === Swal.DismissReason.cancel
+        //     ) {
+        //         Swal.fire({
+        //             title: 'Cancelled',
+        //             text: "Your imaginary file is safe :)",
+        //             icon: 'error',
+        //             timer: 1000,
+        //             showConfirmButton: false,
+        //         }
+        //         )
+        //     }
+        // })
+        dispatch(deleteapi(EmployeeId,id));
     }
     const fetchEmployeeData = () => {
-        axios.get(`http://127.0.0.1:8000/api/companiesemp/${id}/`)
-            .then((response) => {
-                console.log(response);
-                setApiData(response.data);
-                setGetUsers(true);
+    //    axios.get(`http://127.0.0.1:8000/api/companiesemp/${id}/`)
+    //         .then((response) => {
+    //             console.log(response);
+                // setApiData(response.data);
+                // setGetUsers(true);
 
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //         });
+    dispatch(getEmpApi(id))
+    // setApiData(response.data);
+    // setGetUsers(true);
+    
+    
     };
 
+    // useEffect(() => {
+    //     // fetchEmployeeData();
+    //     dispatch(getEmpApi(id));
+    // }, []);
     useEffect(() => {
-        fetchEmployeeData();
-    }, []);
+        dispatch(getEmpApi(id));
+    }, []); 
 
+    useEffect(()=>{
+        if(empApidata!==null){
+            setApiData(empApidata)
+        }
+        if (empOptData !== null) {
+            // fetchEmployeeData(empOptData);
+        }
+       
+    },[empApidata,empOptData])
+    
+   
+
+
+   
     const handleSubmit = (event) => {
         event.preventDefault();
     };
